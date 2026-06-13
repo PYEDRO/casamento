@@ -8,10 +8,12 @@ interface ProfileRow {
   id: string;
   full_name: string;
   email: string | null;
+  attending: boolean | null;
 }
 interface CompanionRow {
   profile_id: string;
   full_name: string;
+  attending: boolean;
 }
 interface ContributionRow {
   id: string;
@@ -25,6 +27,14 @@ interface ContributionRow {
 const fmt = (v: number) =>
   v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
+function StatusBadge({ value }: { value: boolean | null }) {
+  if (value === true)
+    return <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700">Vai</span>;
+  if (value === false)
+    return <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs text-red-600">Não vai</span>;
+  return <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">Pendente</span>;
+}
+
 export default function AdminDashboard() {
   const { profile, loading, signOut } = useAuth();
   const [profiles, setProfiles] = useState<ProfileRow[]>([]);
@@ -37,8 +47,8 @@ export default function AdminDashboard() {
     if (!profile?.is_admin) return;
     (async () => {
       const [p, c, g, ct] = await Promise.all([
-        supabase.from('profiles').select('id, full_name, email').order('full_name'),
-        supabase.from('companions').select('profile_id, full_name'),
+        supabase.from('profiles').select('id, full_name, email, attending').order('full_name'),
+        supabase.from('companions').select('profile_id, full_name, attending'),
         supabase.from('gift_progress').select('*').order('sort_order'),
         supabase
           .from('contributions')
@@ -54,21 +64,22 @@ export default function AdminDashboard() {
   }, [profile]);
 
   const companionsByProfile = useMemo(() => {
-    const m = new Map<string, string[]>();
+    const m = new Map<string, CompanionRow[]>();
     companions.forEach((c) => {
       const arr = m.get(c.profile_id) ?? [];
-      arr.push(c.full_name);
+      arr.push(c);
       m.set(c.profile_id, arr);
     });
     return m;
   }, [companions]);
 
   const kpis = useMemo(() => {
-    const confirmados = profiles.length;
-    const acompanhantes = companions.length;
+    const goingGuests = profiles.filter((p) => p.attending === true).length;
+    const pending = profiles.filter((p) => p.attending === null).length;
+    const goingComps = companions.filter((c) => c.attending).length;
     const arrecadado = gifts.reduce((s, g) => s + Number(g.raised_amount), 0);
     const meta = gifts.reduce((s, g) => s + Number(g.target_amount), 0);
-    return { confirmados, acompanhantes, total: confirmados + acompanhantes, arrecadado, meta };
+    return { goingGuests, pending, total: goingGuests + goingComps, arrecadado, meta };
   }, [profiles, companions, gifts]);
 
   if (loading) {
@@ -97,27 +108,22 @@ export default function AdminDashboard() {
       </header>
 
       <main className="mx-auto max-w-6xl px-4 py-8">
-        {/* KPIs */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Kpi label="Convidados confirmados" value={String(kpis.confirmados)} />
-          <Kpi label="Acompanhantes" value={String(kpis.acompanhantes)} />
+          <Kpi label="Convidados que vão" value={String(kpis.goingGuests)} hint={`${kpis.pending} pendente(s)`} />
+          <Kpi label="Acompanhantes que vão" value={String(companions.filter((c) => c.attending).length)} />
           <Kpi label="Total de pessoas" value={String(kpis.total)} />
-          <Kpi
-            label="Arrecadado"
-            value={fmt(kpis.arrecadado)}
-            hint={`de ${fmt(kpis.meta)} em presentes`}
-          />
+          <Kpi label="Arrecadado" value={fmt(kpis.arrecadado)} hint={`de ${fmt(kpis.meta)} em presentes`} />
         </div>
 
         {busy && <p className="mt-6 text-cocoa">Carregando dados…</p>}
 
-        {/* RSVP */}
         <Section title="Lista de Confirmações (RSVP)">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead className="text-xs uppercase tracking-wider text-champagne">
                 <tr className="border-b border-champagne/20">
                   <th className="py-2 pr-4">Convidado</th>
+                  <th className="py-2 pr-4">Presença</th>
                   <th className="py-2 pr-4">E-mail</th>
                   <th className="py-2 pr-4">Acompanhantes</th>
                 </tr>
@@ -128,17 +134,22 @@ export default function AdminDashboard() {
                   return (
                     <tr key={p.id} className="border-b border-champagne/10 align-top">
                       <td className="py-2 pr-4 text-espresso">{p.full_name || '—'}</td>
+                      <td className="py-2 pr-4">
+                        <StatusBadge value={p.attending} />
+                      </td>
                       <td className="py-2 pr-4 text-espresso/70">{p.email ?? '—'}</td>
                       <td className="py-2 pr-4 text-espresso/70">
                         {comps.length === 0 ? (
                           <span className="text-espresso/40">nenhum</span>
                         ) : (
-                          <span>
-                            <span className="mr-2 rounded-full bg-sand px-2 py-0.5 text-xs text-cocoa">
-                              {comps.length}
-                            </span>
-                            {comps.join(', ')}
-                          </span>
+                          <div className="flex flex-col gap-1">
+                            {comps.map((c, idx) => (
+                              <span key={idx} className="flex items-center gap-2">
+                                {c.full_name}
+                                <StatusBadge value={c.attending} />
+                              </span>
+                            ))}
+                          </div>
                         )}
                       </td>
                     </tr>
@@ -146,7 +157,7 @@ export default function AdminDashboard() {
                 })}
                 {profiles.length === 0 && !busy && (
                   <tr>
-                    <td colSpan={3} className="py-4 text-center text-espresso/50">
+                    <td colSpan={4} className="py-4 text-center text-espresso/50">
                       Nenhuma confirmação ainda.
                     </td>
                   </tr>
@@ -156,7 +167,6 @@ export default function AdminDashboard() {
           </div>
         </Section>
 
-        {/* PRESENTES */}
         <Section title="Status dos Presentes">
           <div className="space-y-3">
             {gifts.map((g) => {
@@ -187,7 +197,6 @@ export default function AdminDashboard() {
           </div>
         </Section>
 
-        {/* FINANCEIRO */}
         <Section title="Contribuições (Financeiro)">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">

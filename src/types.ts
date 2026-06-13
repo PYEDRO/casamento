@@ -5,12 +5,15 @@ export interface Profile {
   bringing_guest: boolean;
   guest_name: string | null;
   is_admin: boolean;
+  /** null = ainda não respondeu; true/false = vai / não vai. */
+  attending: boolean | null;
 }
 
 export interface Companion {
   id: string;
   profile_id: string;
   full_name: string;
+  attending: boolean;
 }
 
 export interface GiftProgress {
@@ -29,6 +32,5 @@ export interface SignUpData {
   fullName: string;
   email: string;
   password: string;
-  /** Nomes dos acompanhantes (+1, +2, ...). Vazios são ignorados. */
   companions: string[];
 }

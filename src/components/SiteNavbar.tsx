@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { COUPLE } from '../data/site';
+import RsvpPanel from './RsvpPanel';
 
 const LINKS = [
   { href: '#historia', label: 'Nossa História' },
@@ -14,6 +15,14 @@ export default function SiteNavbar() {
   const { profile, signOut } = useAuth();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [rsvpOpen, setRsvpOpen] = useState(false);
+
+  const rsvpLabel =
+    profile?.attending === true
+      ? '✓ Presença confirmada'
+      : profile?.attending === false
+        ? 'Não vou — alterar'
+        : 'Confirmar Presença';
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -49,6 +58,16 @@ export default function SiteNavbar() {
         </div>
 
         <div className="hidden items-center gap-4 text-sm text-cocoa md:flex">
+          <button
+            onClick={() => setRsvpOpen(true)}
+            className={`rounded-full border px-3 py-1 text-xs ${
+              profile?.attending === true
+                ? 'border-green-400 bg-green-50 text-green-700'
+                : 'border-cocoa bg-cocoa text-cream'
+            }`}
+          >
+            {rsvpLabel}
+          </button>
           {profile?.is_admin && (
             <Link
               to="/admin"
@@ -87,6 +106,15 @@ export default function SiteNavbar() {
                 {l.label}
               </a>
             ))}
+            <button
+              onClick={() => {
+                setOpen(false);
+                setRsvpOpen(true);
+              }}
+              className="rounded-lg bg-cocoa px-3 py-2 text-left text-sm text-cream"
+            >
+              {rsvpLabel}
+            </button>
             {profile?.is_admin && (
               <Link
                 to="/admin"
@@ -103,6 +131,8 @@ export default function SiteNavbar() {
           </div>
         </div>
       )}
+
+      {rsvpOpen && <RsvpPanel onClose={() => setRsvpOpen(false)} />}
     </header>
   );
 }

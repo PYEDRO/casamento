@@ -16,40 +16,49 @@ interface AuthContextValue {
   signUp: (data: SignUpData) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+
+const PROFILE_COLS = 'id, full_name, email, bringing_guest, guest_name, is_admin, attending';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Carrega/atualiza o profile sempre que a sessão muda.
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       setLoading(false);
     });
-
     const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
       setSession(s);
     });
     return () => sub.subscription.unsubscribe();
   }, []);
 
+  async function loadProfile(userId: string) {
+    const { data } = await supabase
+      .from('profiles')
+      .select(PROFILE_COLS)
+      .eq('id', userId)
+      .maybeSingle();
+    setProfile(data as Profile | null);
+  }
+
   useEffect(() => {
     if (!session?.user) {
       setProfile(null);
       return;
     }
-    supabase
-      .from('profiles')
-      .select('id, full_name, email, bringing_guest, guest_name, is_admin')
-      .eq('id', session.user.id)
-      .maybeSingle()
-      .then(({ data }) => setProfile(data as Profile | null));
+    loadProfile(session.user.id);
   }, [session]);
+
+  async function refreshProfile() {
+    if (session?.user) await loadProfile(session.user.id);
+  }
 
   async function signUp(d: SignUpData) {
     const companions = d.companions.map((n) => n.trim()).filter(Boolean);
@@ -57,11 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: d.email,
       password: d.password,
       options: {
-        // Lido pelo trigger handle_new_user para popular profiles + companions.
-        data: {
-          full_name: d.fullName,
-          companions,
-        },
+        data: { full_name: d.fullName, companions },
       },
     });
     if (error) throw error;
@@ -78,7 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ session, profile, loading, signUp, signIn, signOut }}
+      value={{ session, profile, loading, signUp, signIn, signOut, refreshProfile }}
     >
       {children}
     </AuthContext.Provider>
