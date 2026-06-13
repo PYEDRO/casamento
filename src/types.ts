@@ -22,6 +22,7 @@ export interface GiftProgress {
   title: string;
   description: string | null;
   icon: string | null;
+  image_url: string | null;
   target_amount: number;
   sort_order: number;
   raised_amount: number;

@@ -30,10 +30,19 @@ export default function GiftCard({
     v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
   return (
-    <div className="rounded-xl border border-champagne/20 bg-cream p-5 shadow-sm">
+    <div className="overflow-hidden rounded-xl border border-champagne/20 bg-cream shadow-sm">
+      {gift.image_url && (
+        <img
+          src={gift.image_url}
+          alt={gift.title}
+          loading="lazy"
+          className="h-44 w-full object-cover"
+        />
+      )}
+      <div className="p-5">
       <div className="flex items-start justify-between">
         <div className="flex gap-3">
-          <span className="text-2xl">{gift.icon}</span>
+          {!gift.image_url && <span className="text-2xl">{gift.icon}</span>}
           <div>
             <p className="text-[11px] uppercase tracking-widest text-champagne">
               {gift.category}
@@ -147,6 +156,7 @@ export default function GiftCard({
           }}
         />
       )}
+      </div>
     </div>
   );
 }
