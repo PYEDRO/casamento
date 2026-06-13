@@ -2,9 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+html,
 body {
   margin: 0;
+  /* Evita scroll horizontal acidental em telas estreitas. */
+  overflow-x: hidden;
   font-family: theme('fontFamily.sans');
   background: theme('colors.cream');
   color: theme('colors.espresso');
+}
+
+/* Quebra palavras/strings longas (ex.: chave Pix, e-mails) sem estourar layout. */
+* {
+  overflow-wrap: break-word;
 }

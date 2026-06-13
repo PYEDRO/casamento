@@ -4,6 +4,7 @@ export interface Profile {
   email: string | null;
   bringing_guest: boolean;
   guest_name: string | null;
+  is_admin: boolean;
 }
 
 export interface GiftProgress {

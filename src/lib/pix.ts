@@ -36,6 +36,28 @@ function sanitize(text: string, maxLen: number): string {
     .slice(0, maxLen);
 }
 
+/**
+ * Normaliza a chave Pix para o formato exigido pelo BR Code.
+ * - E-mail: minúsculas.
+ * - Telefone: E.164 BR. 10–11 dígitos (DDD + número) recebem +55;
+ *   12–13 dígitos são tratados como já contendo o DDI.
+ * - Chave aleatória (UUID): mantida como está.
+ * Este projeto usa telefone — informe VITE_PIX_KEY como +5511999999999
+ * ou (11) 99999-9999; ambos resultam no mesmo payload.
+ */
+export function normalizePixKey(key: string): string {
+  const trimmed = key.trim();
+  if (trimmed.includes('@')) return trimmed.toLowerCase();
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(trimmed)) {
+    return trimmed.toLowerCase();
+  }
+  const digits = trimmed.replace(/\D/g, '');
+  if (trimmed.startsWith('+')) return `+${digits}`;
+  if (digits.length === 10 || digits.length === 11) return `+55${digits}`;
+  if (digits.length === 12 || digits.length === 13) return `+${digits}`;
+  return trimmed;
+}
+
 /** CRC16-CCITT (XModem): poly 0x1021, init 0xFFFF. Retorna 4 hex maiúsculos. */
 export function crc16(payload: string): string {
   let crc = 0xffff;

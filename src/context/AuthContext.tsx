@@ -45,7 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     supabase
       .from('profiles')
-      .select('id, full_name, email, bringing_guest, guest_name')
+      .select('id, full_name, email, bringing_guest, guest_name, is_admin')
       .eq('id', session.user.id)
       .maybeSingle()
       .then(({ data }) => setProfile(data as Profile | null));

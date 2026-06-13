@@ -7,9 +7,15 @@ const PRESETS = [50, 100, 200];
 export default function GiftCard({
   gift,
   onContributed,
+  isAdmin = false,
+  onEdit,
+  onDelete,
 }: {
   gift: GiftProgress;
   onContributed: () => void;
+  isAdmin?: boolean;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState<number>(100);
@@ -110,6 +116,23 @@ export default function GiftCard({
             </div>
           )}
         </>
+      )}
+
+      {isAdmin && (
+        <div className="mt-4 flex gap-2 border-t border-champagne/20 pt-3">
+          <button
+            onClick={onEdit}
+            className="rounded border border-champagne/40 px-3 py-1 text-xs text-espresso hover:bg-sand"
+          >
+            ✏️ Editar
+          </button>
+          <button
+            onClick={onDelete}
+            className="rounded border border-red-300 px-3 py-1 text-xs text-red-600 hover:bg-red-50"
+          >
+            🗑️ Excluir
+          </button>
+        </div>
       )}
 
       {showPix && (

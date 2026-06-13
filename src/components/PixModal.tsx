@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
-import { buildPixPayload } from '../lib/pix';
+import { buildPixPayload, normalizePixKey } from '../lib/pix';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import type { GiftProgress } from '../types';
 
-const PIX_KEY = import.meta.env.VITE_PIX_KEY as string;
+const PIX_KEY = normalizePixKey(import.meta.env.VITE_PIX_KEY as string);
 const PIX_NAME = import.meta.env.VITE_PIX_MERCHANT_NAME as string;
 const PIX_CITY = import.meta.env.VITE_PIX_MERCHANT_CITY as string;
 

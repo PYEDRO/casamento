@@ -7,10 +7,16 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-cream">
       <Navbar />
-      <section className="bg-sand px-4 py-20 text-center">
-        <p className="text-xs uppercase tracking-[0.4em] text-cocoa">O Grande Dia</p>
-        <h1 className="mt-4 font-script text-6xl text-espresso">Ana &amp; Carlos</h1>
-        <p className="mt-4 text-cocoa">14 de Setembro de 2025 · São Paulo, Brasil</p>
+      <section className="bg-sand px-4 py-16 text-center sm:py-20">
+        <p className="text-[10px] uppercase tracking-[0.3em] text-cocoa sm:text-xs sm:tracking-[0.4em]">
+          O Grande Dia
+        </p>
+        <h1 className="mt-4 font-script text-5xl text-espresso sm:text-6xl">
+          Ana &amp; Carlos
+        </h1>
+        <p className="mt-4 text-sm text-cocoa sm:text-base">
+          14 de Setembro de 2025 · São Paulo, Brasil
+        </p>
         <div className="mt-6 flex flex-wrap justify-center gap-3 text-sm text-espresso">
           <span className="rounded border border-champagne/40 px-4 py-2">📅 14 Set 2025</span>
           <span className="rounded border border-champagne/40 px-4 py-2">🕔 17h00</span>
