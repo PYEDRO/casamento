@@ -1,17 +1,19 @@
 /**
- * Conteúdo do site (textos das imagens de referência) e imagens placeholder
- * (Unsplash). Troque as URLs por fotos reais quando tiver os arquivos.
+ * Conteúdo do site (textos) e imagens placeholder (Unsplash).
+ * Troque as URLs por fotos reais quando tiver os arquivos.
  */
 
 const U = (id: string) =>
   `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1600&q=80`;
 
 export const COUPLE = {
-  names: 'Ana & Carlos',
-  date: '14 de Setembro de 2025',
-  city: 'São Paulo, Brasil',
+  names: 'Pedro & Thallyta',
+  date: '25 de Abril de 2027',
+  dateShort: '25 Abr 2027',
+  dateUpper: '25 DE ABRIL DE 2027',
+  city: 'Brazlândia, DF',
   time: '17h00',
-  venue: 'Quinta dos Ipês',
+  venue: 'INCRA 7 – Chácara 30',
 };
 
 export const HERO_IMAGE = U('1519741497674-611481863552');
@@ -35,20 +37,20 @@ export const STORY = [
   },
   {
     year: '2021',
-    text: 'Viajamos juntos pela Europa pela primeira vez. Foi em Paris que Carlos pediu Ana em namoro, às margens do Sena.',
+    text: 'Viajamos juntos pela Europa pela primeira vez. Foi em Paris que Pedro pediu Thallyta em namoro, às margens do Sena.',
   },
   {
     year: '2024',
-    text: 'Carlos surpreendeu Ana com um pedido de casamento durante um jantar íntimo em família, com um anel de família de três gerações.',
+    text: 'Pedro surpreendeu Thallyta com um pedido de casamento durante um jantar íntimo em família, com um anel de família de três gerações.',
   },
   {
-    year: '2025',
+    year: '2027',
     text: 'E agora, estamos prontos para celebrar o nosso amor com as pessoas que mais amamos no mundo.',
   },
 ];
 
 export const CEREMONY = {
   horario: ['Cerimônia: 17h00', 'Recepção: 19h00', 'Jantar: 20h30', 'Festa: até a aurora'],
-  local: ['Quinta dos Ipês', 'Rua das Flores, 1200', 'Ibirapuera, São Paulo', 'SP, 04078-000'],
-  data: ['Sábado', '14 de Setembro', 'de 2025', 'Traje: Esporte Fino'],
+  local: ['INCRA 7 – Chácara 30', 'Às margens da BR-080, Km 05', 'Brazlândia – DF'],
+  data: ['Domingo', '25 de Abril', 'de 2027', 'Traje: Esporte Fino'],
 };

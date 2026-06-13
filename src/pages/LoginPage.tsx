@@ -67,7 +67,7 @@ export default function LoginPage() {
           <div className="mb-3 text-champagne">♥</div>
           <h1 className="font-script text-4xl text-champagne">{COUPLE.names}</h1>
           <p className="mt-2 text-xs tracking-[0.3em] text-cocoa">
-            14 DE SETEMBRO DE 2025
+            {COUPLE.dateUpper}
           </p>
           <p className="mt-4 text-sm text-espresso/70">
             {mode === 'signin'

@@ -33,7 +33,7 @@ export default function HomePage() {
             {COUPLE.date} · {COUPLE.city}
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3 text-sm">
-            <Badge>📅 14 Set 2025</Badge>
+            <Badge>📅 {COUPLE.dateShort}</Badge>
             <Badge>🕔 {COUPLE.time}</Badge>
             <Badge>📍 {COUPLE.venue}</Badge>
           </div>
@@ -140,7 +140,7 @@ export default function HomePage() {
       <footer className="bg-cream px-4 py-12 text-center">
         <p className="font-script text-3xl text-champagne">{COUPLE.names}</p>
         <p className="mt-2 text-xs uppercase tracking-[0.3em] text-cocoa">
-          {COUPLE.date} · São Paulo
+          {COUPLE.date} · {COUPLE.city}
         </p>
         <div className="mx-auto mt-3 flex items-center justify-center gap-3 text-champagne">
           <span className="h-px w-10 bg-champagne/40" />♥
