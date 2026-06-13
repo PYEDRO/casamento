@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { COUPLE, LOGIN_IMAGE } from '../data/site';
 
 type Mode = 'signin' | 'signup';
 
@@ -12,11 +13,20 @@ export default function LoginPage() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [bringingGuest, setBringingGuest] = useState(false);
-  const [guestName, setGuestName] = useState('');
+  const [companions, setCompanions] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  function addCompanion() {
+    setCompanions((c) => [...c, '']);
+  }
+  function updateCompanion(i: number, value: string) {
+    setCompanions((c) => c.map((v, idx) => (idx === i ? value : v)));
+  }
+  function removeCompanion(i: number) {
+    setCompanions((c) => c.filter((_, idx) => idx !== i));
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -28,10 +38,11 @@ export default function LoginPage() {
         await signIn(email, password);
         navigate('/');
       } else {
-        if (bringingGuest && !guestName.trim()) {
-          throw new Error('Informe o nome do seu acompanhante.');
+        const names = companions.map((n) => n.trim()).filter(Boolean);
+        if (companions.length > 0 && names.length !== companions.length) {
+          throw new Error('Preencha o nome de cada acompanhante ou remova os vazios.');
         }
-        await signUp({ fullName, email, password, bringingGuest, guestName });
+        await signUp({ fullName, email, password, companions: names });
         setInfo(
           'Cadastro criado! Caso a confirmação de e-mail esteja ativa, confirme pelo link enviado. Depois entre normalmente.',
         );
@@ -45,12 +56,17 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-sand bg-cover bg-center px-4">
-      <div className="w-full max-w-md rounded-2xl bg-cream/95 p-8 shadow-xl backdrop-blur">
+    <div
+      className="flex min-h-screen items-center justify-center bg-cover bg-center px-4 py-10"
+      style={{
+        backgroundImage: `linear-gradient(rgba(46,37,29,.45), rgba(46,37,29,.45)), url(${LOGIN_IMAGE})`,
+      }}
+    >
+      <div className="w-full max-w-md rounded-2xl bg-cream/95 p-8 shadow-2xl backdrop-blur">
         <div className="mb-6 text-center">
-          <div className="mb-2 text-champagne">♥</div>
-          <h1 className="font-script text-4xl text-champagne">Ana &amp; Carlos</h1>
-          <p className="mt-1 text-xs tracking-[0.3em] text-cocoa">
+          <div className="mb-3 text-champagne">♥</div>
+          <h1 className="font-script text-4xl text-champagne">{COUPLE.names}</h1>
+          <p className="mt-2 text-xs tracking-[0.3em] text-cocoa">
             14 DE SETEMBRO DE 2025
           </p>
           <p className="mt-4 text-sm text-espresso/70">
@@ -62,20 +78,9 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {mode === 'signup' && (
-            <Input
-              label="Seu nome completo"
-              value={fullName}
-              onChange={setFullName}
-              required
-            />
+            <Input label="Seu nome completo" value={fullName} onChange={setFullName} required />
           )}
-          <Input
-            label="E-mail"
-            type="email"
-            value={email}
-            onChange={setEmail}
-            required
-          />
+          <Input label="E-mail" type="email" value={email} onChange={setEmail} required />
           <Input
             label="Senha"
             type="password"
@@ -87,25 +92,44 @@ export default function LoginPage() {
 
           {mode === 'signup' && (
             <div className="rounded-lg border border-champagne/40 p-3">
-              <label className="flex items-center gap-2 text-sm text-espresso">
-                <input
-                  type="checkbox"
-                  checked={bringingGuest}
-                  onChange={(e) => setBringingGuest(e.target.checked)}
-                  className="accent-champagne"
-                />
-                Vou levar um acompanhante
-              </label>
-              {bringingGuest && (
-                <div className="mt-3">
-                  <Input
-                    label="Nome do acompanhante"
-                    value={guestName}
-                    onChange={setGuestName}
-                    required
-                  />
-                </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-espresso">Acompanhantes</span>
+                <button
+                  type="button"
+                  onClick={addCompanion}
+                  className="rounded border border-champagne/40 px-2 py-1 text-xs text-cocoa hover:bg-sand"
+                >
+                  + Adicionar
+                </button>
+              </div>
+
+              {companions.length === 0 && (
+                <p className="mt-2 text-xs text-espresso/50">
+                  Nenhum acompanhante. Clique em “Adicionar” para incluir +1, +2…
+                </p>
               )}
+
+              <div className="mt-3 space-y-2">
+                {companions.map((name, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <span className="w-8 shrink-0 text-xs text-cocoa">+{i + 1}</span>
+                    <input
+                      value={name}
+                      onChange={(e) => updateCompanion(i, e.target.value)}
+                      placeholder={`Nome do acompanhante ${i + 1}`}
+                      className="w-full rounded-lg border border-champagne/40 bg-white/70 px-3 py-2 text-sm text-espresso outline-none focus:border-champagne"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeCompanion(i)}
+                      className="shrink-0 rounded border border-red-300 px-2 py-2 text-xs text-red-600 hover:bg-red-50"
+                      aria-label="Remover acompanhante"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
@@ -155,9 +179,7 @@ function Input({
 }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs uppercase tracking-wider text-cocoa">
-        {label}
-      </span>
+      <span className="mb-1 block text-xs uppercase tracking-wider text-cocoa">{label}</span>
       <input
         type={type}
         value={value}

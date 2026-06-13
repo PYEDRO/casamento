@@ -52,15 +52,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [session]);
 
   async function signUp(d: SignUpData) {
+    const companions = d.companions.map((n) => n.trim()).filter(Boolean);
     const { error } = await supabase.auth.signUp({
       email: d.email,
       password: d.password,
       options: {
-        // Lido pelo trigger handle_new_user para popular profiles.
+        // Lido pelo trigger handle_new_user para popular profiles + companions.
         data: {
           full_name: d.fullName,
-          bringing_guest: d.bringingGuest,
-          guest_name: d.bringingGuest ? d.guestName : null,
+          companions,
         },
       },
     });

@@ -7,6 +7,12 @@ export interface Profile {
   is_admin: boolean;
 }
 
+export interface Companion {
+  id: string;
+  profile_id: string;
+  full_name: string;
+}
+
 export interface GiftProgress {
   id: string;
   category: string;
@@ -23,6 +29,6 @@ export interface SignUpData {
   fullName: string;
   email: string;
   password: string;
-  bringingGuest: boolean;
-  guestName: string;
+  /** Nomes dos acompanhantes (+1, +2, ...). Vazios são ignorados. */
+  companions: string[];
 }
