@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { COUPLE } from '../data/site';
 
@@ -48,6 +49,14 @@ export default function SiteNavbar() {
         </div>
 
         <div className="hidden items-center gap-4 text-sm text-cocoa md:flex">
+          {profile?.is_admin && (
+            <Link
+              to="/admin"
+              className="rounded border border-champagne/40 px-3 py-1 text-xs uppercase tracking-widest text-cocoa hover:bg-sand"
+            >
+              Painel
+            </Link>
+          )}
           <span>Olá, {firstName}</span>
           <button onClick={signOut} className="hover:text-espresso">
             Sair ↩
@@ -78,6 +87,15 @@ export default function SiteNavbar() {
                 {l.label}
               </a>
             ))}
+            {profile?.is_admin && (
+              <Link
+                to="/admin"
+                onClick={() => setOpen(false)}
+                className="text-sm uppercase tracking-widest text-cocoa"
+              >
+                Painel dos Noivos
+              </Link>
+            )}
             <div className="flex items-center justify-between border-t border-champagne/20 pt-3 text-sm text-cocoa">
               <span>Olá, {firstName}</span>
               <button onClick={signOut}>Sair ↩</button>
